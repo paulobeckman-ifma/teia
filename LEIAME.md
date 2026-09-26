@@ -9,8 +9,8 @@ IFMA Campus Imperatriz. Versão 3 (setembro de 2026): site estático no GitHub P
 - `js/10-servidor.js`: comunicação com o Supabase. Substitui o antigo `api.php`, mantendo as mesmas funções (`phpGet`/`phpPost`) para o resto do código não mudar.
 - `config.js`: endereço do Supabase (chave pública) e do Apps Script.
 - `infra/schema.sql`: tabelas e funções do banco. Todas as tabelas têm RLS sem políticas; o acesso é só pelas funções, que conferem o token de sessão.
-- `infra/ia/index.ts`: Edge Function `ia` (substitui o `ia_proxy.php`). Implantada com verificação de JWT desligada.
-- `infra/apps-script/Code.gs`: backup semanal no Drive e consulta diária para o projeto gratuito não pausar.
+- `infra/funcao-ia.ts`: Edge Function `ia` (substitui o `ia_proxy.php`). Implantada com verificação de JWT desligada.
+- `infra/apps-script-backup.gs`: backup semanal no Drive e consulta diária para o projeto gratuito não pausar.
 
 ## Senhas
 
