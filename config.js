@@ -9,9 +9,9 @@ window.TEIA_CONFIG = {
   SUPABASE_KEY: 'sb_publishable_SB05cbf2pslsySaF2TXdAQ_DzO0oOzx',
 
   // Apps Script (Google Drive) para backup. Preenchido depois da implantação.
-  APPS_SCRIPT_URL: '',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyEpTTYxZDrkiwssj3wyxtx9m5jKLINTSMil4J5wGc4VKwtmpGxjN0eW2NEmwUrTBU/exec',
 
-  VERSAO: '3.0.0'
+  VERSAO: '3.0.1'
 };
 
 // Teste local (servidor de teste na própria máquina): usa o servidor de teste.
