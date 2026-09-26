@@ -1,0 +1,1 @@
+Infraestrutura: banco (Supabase), funcao de IA e backup (Apps Script).
