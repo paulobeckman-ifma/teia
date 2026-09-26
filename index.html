@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeIA</title>
+<!-- Favicon: padrão de teia em verde IFMA. SVG inline (data URI) — não precisa
+     de arquivo separado, funciona até em hospedagem compartilhada. Mostra um
+     hub central com 6 nós conectados, evocando a "teia" de integração entre
+     coordenação, professores, alunos, pedagogia, etc. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'&gt;&lt;defs&gt;&lt;radialGradient id='g' cx='50%25' cy='45%25' r='55%25'&gt;&lt;stop offset='0%25' stop-color='%2343A047'/&gt;&lt;stop offset='100%25' stop-color='%231B5E20'/&gt;&lt;/radialGradient&gt;&lt;/defs&gt;&lt;rect width='64' height='64' rx='14' fill='url(%23g)'/&gt;&lt;g stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' fill='none' opacity='0.92'&gt;&lt;line x1='32' y1='32' x2='32' y2='12'/&gt;&lt;line x1='32' y1='32' x2='49.3' y2='22'/&gt;&lt;line x1='32' y1='32' x2='49.3' y2='42'/&gt;&lt;line x1='32' y1='32' x2='32' y2='52'/&gt;&lt;line x1='32' y1='32' x2='14.7' y2='42'/&gt;&lt;line x1='32' y1='32' x2='14.7' y2='22'/&gt;&lt;/g&gt;&lt;g stroke='%23ffffff' stroke-width='1' fill='none' opacity='0.55'&gt;&lt;polygon points='32,12 49.3,22 49.3,42 32,52 14.7,42 14.7,22'/&gt;&lt;polygon points='32,18 44.2,25 44.2,39 32,46 19.8,39 19.8,25'/&gt;&lt;/g&gt;&lt;g fill='%23ffffff'&gt;&lt;circle cx='32' cy='32' r='4.2'/&gt;&lt;circle cx='32' cy='12' r='2.6'/&gt;&lt;circle cx='49.3' cy='22' r='2.6'/&gt;&lt;circle cx='49.3' cy='42' r='2.6'/&gt;&lt;circle cx='32' cy='52' r='2.6'/&gt;&lt;circle cx='14.7' cy='42' r='2.6'/&gt;&lt;circle cx='14.7' cy='22' r='2.6'/&gt;&lt;/g&gt;&lt;/svg&gt;">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="css/teia.css?v=3.0.0">
+<script src="config.js?v=3.0.0"></script>
+</head>
+<body>
+<!-- FORCE PW OVERLAY -->
+<div id="force-pw-overlay">
+  <div class="force-pw-box">
+    <div style="font-size:2rem;margin-bottom:.5rem">🔐</div>
+    <h2>Defina sua senha</h2>
+    <p>Por segurança, você precisa criar uma senha pessoal antes de continuar.</p>
+    <input id="force-pw-new" type="password" placeholder="Nova senha (mín. 4 caracteres)" maxlength="30" oninput="document.getElementById('force-pw-err').style.display='none'" onkeydown="if(event.key==='Enter')confirmarForcePw()">
+    <input id="force-pw-confirm" type="password" placeholder="Confirmar nova senha" maxlength="30" oninput="document.getElementById('force-pw-err').style.display='none'" onkeydown="if(event.key==='Enter')confirmarForcePw()">
+    <div id="force-pw-err" class="force-pw-err"></div>
+    <button class="btn-p" style="width:100%;padding:.6rem;font-size:.9rem" onclick="confirmarForcePw()">💾 Salvar senha</button>
+  </div>
+</div>
+
+<!-- PHOTO POPUP -->
+<div id="photo-popup">
+  <div class="photo-popup-inner">
+    <img id="photo-popup-img" src="" alt="">
+    <button class="photo-popup-close" onclick="closePhotoPopup()">✕</button>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <img class="login-logo" src="data:image/png;base64,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" alt="IFMA">
+    <div class="login-title">TeIA</div><div style="font-size:.68rem;color:var(--g3);text-align:center;margin-top:-.5rem;font-weight:600">Tecnologia Escolar de Integração e Acompanhamento</div>
+    <div class="login-sub">Faça login para continuar</div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input class="login-input" type="text" id="li-user" placeholder="seu.usuario" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('li-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input class="login-input" type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-err">Usuário ou senha incorretos.</div>
+    <div class="login-footer">
+      <small>
+        
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- TOPBAR (estética SGA) -->
+  <header>
+    <div class="logo-pill">
+      <img class="logo-ifma" src="data:image/png;base64,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" alt="IFMA" style="height:36px;width:auto;display:block">
+    </div>
+    <div class="hdiv"></div>
+    <h1>TeIA<span>Tecnologia Escolar de Integração e Acompanhamento</span></h1>
+    <div class="hright" id="hright"></div>
+    <span id="sync-status" class="sync-badge sync-off" title="Status do servidor">⚫</span>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </header>
+
+  <!-- TAB CONTENTS -->
+  <div class="tab-panels">
+
+  <!-- DASHBOARD -->
+  <div class="tab-content" id="tab-dashboard" style="overflow-y:auto;flex-direction:column;gap:.6rem;padding:.7rem .9rem">
+    <div class="dash-stats" id="dash-stats"></div>
+    <div id="dash-body"></div>
+  </div>
+
+  <!-- ALUNOS -->
+  <div class="tab-content" id="tab-alunos">
+    <div class="alunos-panel">
+      <!-- Left sidebar: back + class nav + student list -->
+      <div class="alunos-list">
+        <div class="alunos-list-header">
+          <button class="back-btn" id="btn-back-to-class" onclick="showClassOverview()">← Voltar à Turma</button>
+          <button class="back-btn" id="btn-back-to-courses" onclick="switchTab('dashboard')" style="display:none">← Voltar aos Cursos</button>
+        </div>
+        <!-- Class name + prev/next class -->
+        <div class="class-nav-bar" id="class-nav-bar">
+          <div class="class-nav-name" id="class-nav-name" onclick="showClassOverview()" title="Ver visão geral da turma" style="cursor:pointer;text-decoration:underline dotted">TURMA</div>
+          <div class="class-nav-arrows">
+            <button class="class-arr" id="class-prev-btn" onclick="navigateClass(-1)">←</button>
+            <button class="class-arr" id="class-next-btn" onclick="navigateClass(1)">→</button>
+          </div>
+        </div>
+        <!-- Student nav: arrows + label -->
+        <div class="student-nav-bar">
+          <div class="sn-label">Aluno</div>
+          <div class="sn-arrows">
+            <button class="nav-arr" id="nav-prev" onclick="navigateStudent(-1)">↑</button>
+            <span class="nav-pos" id="nav-pos">— / —</span>
+            <button class="nav-arr" id="nav-next" onclick="navigateStudent(1)">↓</button>
+          </div>
+          <input type="text" id="search-input" placeholder="🔍 Buscar..." oninput="renderList()" style="font-size:.68rem;padding:.25rem .4rem;border:1.5px solid var(--g5);border-radius:var(--rs);width:100%;margin-top:.2rem;font-family:'Sora',sans-serif">
+        </div>
+        <div id="sidebar-cursos" style="display:none;flex-direction:column;gap:.1rem;padding:.4rem .3rem;overflow:hidden;flex:1"></div>
+        <div class="alunos-scroll" id="alunos-scroll"></div>
+      </div>
+      <!-- Main student detail -->
+      <div class="aluno-detail" id="aluno-detail">
+        <div class="empty-st"><div class="ei">👈</div><h3>Selecione um aluno</h3></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORT -->
+  <!-- CONFIGURAÇÕES (com subabas) -->
+  <div class="tab-content" id="tab-config" style="overflow-y:auto;flex-direction:column;gap:0;padding:0">
+    <!-- Subaba nav -->
+    <div style="display:flex;gap:.3rem;padding:.5rem .9rem;background:var(--g6);border-bottom:1px solid var(--g5);flex-shrink:0">
+      <button onclick="switchCfgTab('usuarios')" id="cfg-tab-usuarios" class="cfg-tab-btn cfg-tab-active">👥 Usuários</button>
+      <button onclick="switchCfgTab('professores')" id="cfg-tab-professores" class="cfg-tab-btn">👨‍🏫 Professores</button>
+      <button onclick="switchCfgTab('importar')" id="cfg-tab-importar" class="cfg-tab-btn">📥 Importar</button>
+      <button onclick="switchCfgTab('ia')" id="cfg-tab-ia" class="cfg-tab-btn">🤖 Inteligência Artificial</button>
+      <button onclick="switchCfgTab('log')" id="cfg-tab-log" class="cfg-tab-btn">📋 Log</button>
+      <button onclick="switchCfgTab('backup')" id="cfg-tab-backup" class="cfg-tab-btn">💾 Backup</button>
+    </div>
+    <!-- Subaba: Usuários -->
+    <div id="cfg-usuarios" style="display:flex;flex-direction:column;gap:.6rem;padding:.7rem .9rem;overflow-y:auto;flex:1">
+      <div class="card">
+        <div class="ct">👥 Usuários</div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
+          <input type="text" id="new-username" placeholder="Nome de usuário" style="padding:.38rem .6rem;border:1.5px solid var(--g5);border-radius:var(--rs);font-family:Sora,sans-serif;font-size:.78rem;flex:1;min-width:120px">
+          <button class="btn-p" onclick="createUser()">Criar usuário</button>
+        </div>
+        <div class="user-list" id="user-list"></div>
+      </div>
+      <div class="card">
+        <div class="ct">🖥️ Servidor</div>
+        <div class="server-cfg">
+          <div style="margin-bottom:.5rem;line-height:1.7;font-size:.68rem;color:var(--g2)">
+            Os dados ficam no banco do Supabase e sincronizam automaticamente entre os computadores. Backups semanais vão para o Google Drive (aba Backup).
+          </div>
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+            <span id="sb-status" class="sync-badge sync-warn">🟡 Verificando...</span>
+            <button class="btn-s" style="font-size:.7rem;padding:.3rem .7rem" onclick="testServerConnection()">🔌 Testar</button>
+            <button class="btn-s" style="font-size:.7rem;padding:.3rem .7rem" onclick="pushToServer()">⬆ Enviar</button>
+            <button class="btn-s" style="font-size:.7rem;padding:.3rem .7rem" onclick="pullFromServer()">⬇ Buscar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Subaba: Professores -->
+    <div id="cfg-professores" style="display:none;flex-direction:column;gap:.6rem;padding:.7rem .9rem;overflow-y:auto;flex:1">
+      <div class="card">
+        <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
+          <span>👨‍🏫 Professores</span>
+          <button class="btn-p" style="font-size:.68rem;padding:.25rem .6rem" onclick="openProfModal(null)">➕ Novo Professor</button>
+        </div>
+        <div id="prof-admin-list" style="display:flex;flex-direction:column;gap:.3rem;margin-top:.4rem"></div>
+      </div>
+    </div>
+    <!-- Subaba: Importar -->
+    <div id="cfg-importar" style="display:none;flex-direction:column;gap:.6rem;padding:.7rem .9rem;overflow-y:auto;flex:1">
+    <div class="card">
+      <div class="ct">📥 Importar Planilha de Alunos via IA</div>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('excel-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+        <div style="font-size:2rem;margin-bottom:.4rem">📊</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--g2)">Arraste o arquivo Excel/CSV aqui</div>
+        <div style="font-size:.68rem;color:var(--g3);margin-top:.2rem">ou clique para selecionar · Suporta .xlsx .xls .csv</div>
+        <div style="font-size:.62rem;color:var(--g3);margin-top:.4rem">💡 Somente cursos técnicos serão importados</div>
+      </div>
+      <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcel(event)">
+      <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+        <button class="btn-p" id="confirm-import-btn" style="display:none" onclick="confirmImport()">✅ Confirmar Importação</button>
+      </div>
+      <pre class="import-log" id="import-log">Aguardando arquivo...</pre>
+    </div>
+    <div class="card">
+      <div class="ct">📅 Importar Horários das Turmas</div>
+      <div class="dropzone" id="dropzone-horario" onclick="document.getElementById('horario-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDropHorario(event)" style="padding:1.2rem">
+        <div style="font-size:1.5rem;margin-bottom:.3rem">📋</div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--g2)">Importar planilha de horários</div>
+        <div style="font-size:.65rem;color:var(--g3);margin-top:.15rem">Sigla da turma · Disciplinas · Professores</div>
+      </div>
+      <input type="file" id="horario-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleHorario(event)">
+      <pre class="import-log" id="horario-log" style="min-height:60px;max-height:200px;overflow-y:auto">Aguardando arquivo de horários...</pre>
+    </div>
+    <div class="card" style="padding:.6rem .9rem">
+      <div class="ct" style="margin-bottom:.35rem">🚪 Turmas de Evasão</div>
+      <p style="font-size:.72rem;color:var(--g2);margin:0 0 .5rem">Cria automaticamente uma turma de evasão para cada curso técnico (ex: EVASÃO-EDI).</p>
+      <button class="btn-p" style="font-size:.72rem;padding:.3rem .8rem" onclick="criarTodasEvasoes()">🚪 Criar Turmas de Evasão</button>
+    </div>
+    <div class="card">
+      <div class="ct">💾 Backup</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn-s" onclick="exportBackup()">⬇ Exportar Backup JSON</button>
+        <button class="btn-s" onclick="document.getElementById('json-input').click()">⬆ Importar Backup JSON</button>
+        <button class="btn-d" onclick="confirmClear()">🗑 Apagar todos os dados</button>
+      </div>
+      <input type="file" id="json-input" accept=".json" style="display:none" onchange="importBackup(event)">
+    </div>
+    </div>
+    <!-- Subaba: Log -->
+    <div id="cfg-log" style="display:none;flex-direction:column;gap:.6rem;padding:.7rem .9rem;overflow-y:auto;flex:1">
+    <div class="card">
+      <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
+        📋 Log de Atividades
+        <div style="display:flex;gap:.4rem">
+          <button class="btn-s" style="font-size:.65rem;padding:.25rem .6rem" onclick="renderLog()">🔄</button>
+          <button class="btn-d" style="font-size:.65rem;padding:.25rem .6rem" onclick="clearLog()">🗑 Limpar</button>
+        </div>
+      </div>
+      <div class="log-list" id="log-list"></div>
+    </div>
+    </div><!-- /cfg-log -->
+
+  <!-- IA CONFIG PANEL -->
+  <div id="cfg-ia" style="display:none;flex-direction:column;gap:.7rem;padding:.9rem;overflow-y:auto;flex:1">
+    <!-- conteúdo renderizado dinamicamente por renderIAConfig() -->
+  </div>
+
+  <!-- BACKUP (Google Drive) -->
+  <div id="cfg-backup" style="display:none;flex-direction:column;gap:.7rem;padding:.9rem;overflow-y:auto;flex:1">
+    <!-- conteúdo renderizado dinamicamente por renderBackupConfig() -->
+  </div>
+  </div><!-- /tab-config -->
+
+  <div class="tab-content" id="tab-perfil" style="overflow-y:auto;overflow-x:hidden;flex-direction:column;align-items:center;justify-content:flex-start;padding:2rem 1rem;min-height:0;background:#EFF4EF">
+    <div style="width:100%;max-width:380px;margin:auto 0">
+
+      <!-- card principal -->
+      <div style="background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(46,125,50,.13),0 1px 4px rgba(0,0,0,.06);overflow:hidden">
+
+        <!-- topo verde -->
+        <div style="background:linear-gradient(135deg,#2E7D32 0%,#43A047 100%);padding:1.6rem 2rem 1.4rem;display:flex;align-items:center;gap:.9rem">
+          <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:2px solid rgba(255,255,255,.3)">🔑</div>
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:#fff;letter-spacing:-.01em">Alterar Senha</div>
+            <div id="senha-usuario-label" style="font-size:.7rem;color:rgba(255,255,255,.75);margin-top:.15rem;font-weight:500"></div>
+          </div>
+        </div>
+
+        <!-- corpo -->
+        <div style="padding:1.6rem 2rem 2rem">
+
+          <!-- campo: senha atual -->
+          <div style="margin-bottom:1rem">
+            <label style="display:flex;align-items:center;gap:.35rem;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2E7D32;margin-bottom:.4rem">
+              <span style="font-size:.75rem">🔒</span> Senha atual
+            </label>
+            <div style="position:relative">
+              <input type="password" id="pw-current" placeholder="Digite sua senha atual" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:.6rem .75rem .6rem 2.4rem;border:1.5px solid #E0E0E0;border-radius:9px;font-size:.87rem;color:#1A1A1A;background:#FAFAFA;outline:none;font-family:inherit;transition:border-color .15s,background .15s" onfocus="this.style.borderColor='#2E7D32';this.style.background='#fff';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.1)'" onblur="this.style.borderColor='#E0E0E0';this.style.background='#FAFAFA';this.style.boxShadow='none'">
+              <span style="position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔐</span>
+            </div>
+          </div>
+
+          <!-- divisor -->
+          <div style="height:1px;background:linear-gradient(90deg,transparent,#E8F5E9,transparent);margin:1.1rem 0"></div>
+
+          <!-- campo: nova senha -->
+          <div style="margin-bottom:1rem">
+            <label style="display:flex;align-items:center;gap:.35rem;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2E7D32;margin-bottom:.4rem">
+              <span style="font-size:.75rem">✨</span> Nova senha
+            </label>
+            <div style="position:relative">
+              <input type="password" id="pw-new" placeholder="Mínimo 4 caracteres" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:.6rem .75rem .6rem 2.4rem;border:1.5px solid #E0E0E0;border-radius:9px;font-size:.87rem;color:#1A1A1A;background:#FAFAFA;outline:none;font-family:inherit;transition:border-color .15s,background .15s" onfocus="this.style.borderColor='#2E7D32';this.style.background='#fff';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.1)'" onblur="this.style.borderColor='#E0E0E0';this.style.background='#FAFAFA';this.style.boxShadow='none'">
+              <span style="position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔑</span>
+            </div>
+          </div>
+
+          <!-- campo: confirmar nova senha -->
+          <div style="margin-bottom:0">
+            <label style="display:flex;align-items:center;gap:.35rem;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#2E7D32;margin-bottom:.4rem">
+              <span style="font-size:.75rem">✅</span> Confirmar nova senha
+            </label>
+            <div style="position:relative">
+              <input type="password" id="pw-confirm" placeholder="Repita a nova senha" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:.6rem .75rem .6rem 2.4rem;border:1.5px solid #E0E0E0;border-radius:9px;font-size:.87rem;color:#1A1A1A;background:#FAFAFA;outline:none;font-family:inherit;transition:border-color .15s,background .15s" onfocus="this.style.borderColor='#2E7D32';this.style.background='#fff';this.style.boxShadow='0 0 0 3px rgba(46,125,50,.1)'" onblur="this.style.borderColor='#E0E0E0';this.style.background='#FAFAFA';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter')changePassword()">
+              <span style="position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔁</span>
+            </div>
+          </div>
+
+          <!-- mensagem de erro/ok inline -->
+          <div id="pw-msg" style="display:none;margin-top:.9rem;padding:.55rem .85rem;border-radius:8px;font-size:.78rem;font-weight:600;line-height:1.4"></div>
+
+          <!-- botão -->
+          <button onclick="changePassword()" style="margin-top:1.4rem;width:100%;padding:.7rem;background:linear-gradient(135deg,#2E7D32,#43A047);color:#fff;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;box-shadow:0 3px 10px rgba(46,125,50,.35)" onmouseover="this.style.filter='brightness(1.08)';this.style.boxShadow='0 5px 16px rgba(46,125,50,.45)'" onmouseout="this.style.filter='none';this.style.boxShadow='0 3px 10px rgba(46,125,50,.35)'">
+            💾 Salvar nova senha
+          </button>
+
+        </div>
+      </div>
+
+      <!-- dica de segurança -->
+      <div style="margin-top:.9rem;padding:.65rem 1rem;background:rgba(46,125,50,.07);border-radius:10px;border-left:3px solid #C8E6C9;display:flex;gap:.5rem;align-items:flex-start">
+        <span style="font-size:.9rem;flex-shrink:0;margin-top:.05rem">💡</span>
+        <span style="font-size:.68rem;color:#4A6741;line-height:1.55">Use uma senha com pelo menos 4 caracteres. Evite usar seu nome de usuário como senha.</span>
+      </div>
+
+    </div>
+  </div>
+
+  </div><!-- /tab-panels -->
+  <!-- FOOTER (estética SGA) -->
+  <footer style="background:#fff;border-top:2px solid var(--gm);padding:.35rem 1.2rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-shrink:0;font-size:.58rem;color:var(--g3)">
+  <div style="width:1px;height:28px;background:var(--gm);flex-shrink:0"></div>
+  <div style="text-align:center;line-height:1.6">
+    
+  </div>
+</footer>
+</div><!-- /#app -->
+
+<!-- MODALS -->
+
+<!-- PERM MODAL -->
+<div class="modal-bg" id="perm-modal">
+  <div style="background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.22);width:min(500px,95vw);height:min(600px,85vh);display:flex;flex-direction:column;overflow:hidden;padding:0">
+    <div style="padding:1.2rem 1.4rem .6rem;border-bottom:1px solid var(--g5);flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+      <h2 style="font-size:.95rem;font-weight:800;color:var(--dk);margin:0">🔐 Permissões de Turmas — <span id="perm-user-name"></span></h2>
+      <button class="modal-close" onclick="closeModal('perm-modal')">✕</button>
+    </div>
+    <div style="padding:.6rem 1.4rem .4rem;flex-shrink:0">
+      <p style="font-size:.72rem;color:var(--g2);margin:0 0 .5rem">Selecione os cursos que este usuário pode acessar.</p>
+      <div style="display:flex;gap:.4rem">
+        <button class="btn-s" style="font-size:.68rem;padding:.25rem .6rem" onclick="toggleAllPerms(false)">Desmarcar tudo</button>
+        <button class="btn-s" style="font-size:.68rem;padding:.25rem .6rem" onclick="toggleAllPerms(true)">Marcar tudo</button>
+      </div>
+    </div>
+    <div id="perm-tree" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:.4rem 1.4rem;display:flex;flex-direction:column;gap:.3rem"></div>
+    <div style="padding:.8rem 1.4rem;border-top:1px solid var(--g5);flex-shrink:0;display:flex;justify-content:flex-end;gap:.5rem">
+      <button class="btn-s" onclick="closeModal('perm-modal')">Cancelar</button>
+      <button class="btn-p" onclick="savePerms()">💾 Salvar Permissões</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal-bg" id="edit-student-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <h2>✏️ Editar Aluno</h2>
+      <button class="modal-close" onclick="closeModal('edit-student-modal')">✕</button>
+    </div>
+    <div class="modal-grid-2">
+      <div class="modal-field" style="grid-column:1/-1"><label>Nome</label><input type="text" id="em-nome"></div>
+      <div class="modal-field"><label>Matrícula</label><input type="text" id="em-matricula"></div>
+      <div class="modal-field"><label>Transferir para turma</label>
+        <select id="em-turma-select"></select>
+        <label style="display:flex;align-items:center;gap:.35rem;margin-top:.3rem;font-size:.65rem;color:var(--g2);cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="em-other-courses-cb" onchange="populateEmTurmaSelect()" style="width:13px;height:13px;cursor:pointer;accent-color:var(--green);margin:0">
+          <span>Mostrar turmas de outros cursos</span>
+        </label>
+      </div>
+      <div class="modal-field"><label>Campus</label><input type="text" id="em-campus"></div>
+      <div class="modal-field"><label>Data de Nasc.</label><input type="text" id="em-nascimento"></div>
+      <div class="modal-field"><label>Deficiência</label><input type="text" id="em-deficiencia"></div>
+      <div class="modal-field"><label>Transtorno</label><input type="text" id="em-transtorno"></div>
+      <div class="modal-field"><label>Superdotação</label><input type="text" id="em-superdotacao"></div>
+      <div class="modal-field" style="grid-column:1/-1"><label>URL da Foto</label><input type="text" id="em-foto" placeholder="https://..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-s" onclick="closeModal('edit-student-modal')">Cancelar</button>
+      <button class="btn-p" onclick="saveEditStudent()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- RENAME CLASS MODAL -->
+<div class="modal-bg" id="rename-class-modal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-head">
+      <h2>✏️ Renomear Turma</h2>
+      <button class="modal-close" onclick="closeModal('rename-class-modal')">✕</button>
+    </div>
+    <div class="modal-field"><label>Nome da turma</label><input type="text" id="rename-class-input" onkeydown="if(event.key==='Enter')saveRenameClass()"></div>
+    <div class="modal-footer">
+      <button class="btn-s" onclick="closeModal('rename-class-modal')">Cancelar</button>
+      <button class="btn-p" onclick="saveRenameClass()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TEACHER MODAL -->
+<div class="modal-bg" id="add-teacher-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <h2 id="add-teacher-modal-title">👨‍🏫 Adicionar Professor</h2>
+      <button class="modal-close" onclick="closeModal('add-teacher-modal')">✕</button>
+    </div>
+    <div class="modal-field"><label>Nome do professor</label><input type="text" id="teacher-name-input"></div>
+    <div class="modal-field"><label>Disciplina</label><input type="text" id="teacher-disc-input"></div>
+    <div class="modal-footer">
+      <button class="btn-s" onclick="closeModal('add-teacher-modal')">Cancelar</button>
+      <button class="btn-p" id="teacher-save-btn" onclick="saveAddTeacher()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-bg" id="confirm-bg">
+  <div class="confirm-box">
+    <h3 id="confirm-title"></h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn-s" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-d" id="confirm-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN INPUTS -->
+<input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+<script src="js/01-dados.js?v=3.0.0"></script>
+<script src="js/02-auxiliares.js?v=3.0.0"></script>
+<script src="js/03-autenticacao.js?v=3.0.0"></script>
+<script src="js/04-navegacao.js?v=3.0.0"></script>
+<script src="js/05-turma.js?v=3.0.0"></script>
+<script src="js/06-aluno.js?v=3.0.0"></script>
+<script src="js/07-importacao.js?v=3.0.0"></script>
+<script src="js/08-admin.js?v=3.0.0"></script>
+<script src="js/09-log-relatorios.js?v=3.0.0"></script>
+<script src="js/10-servidor.js?v=3.0.0"></script>
+<script src="js/11-lupas-professores.js?v=3.0.0"></script>
+<script src="js/12-ia-config.js?v=3.0.0"></script>
+<script src="js/13-diagnostico.js?v=3.0.0"></script>
+<script src="js/14-backup.js?v=3.0.0"></script>
+
+<!-- ── LUPA POPUP ── -->
+<div id="lupa-overlay" style="display:none" onclick="if(event.target===this)closeLupa()">
+  <div id="lupa-box">
+    <button class="lupa-btn-close" onclick="closeLupa()">✕</button>
+    <h3 id="lupa-title">Aspectos</h3>
+    <div class="lupa-items" id="lupa-items"></div>
+    <div class="lupa-footer">
+      <button class="lupa-btn-ok" onclick="closeLupa()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL PROFESSOR ── -->
+<div id="prof-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:1.4rem 1.8rem;width:420px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.25)">
+    <h3 id="prof-modal-title" style="margin:0 0 1rem;font-size:.95rem;font-weight:800">➕ Novo Professor</h3>
+    <div style="display:flex;flex-direction:column;gap:.6rem">
+      <div>
+        <label style="font-size:.68rem;font-weight:700;color:var(--g2);text-transform:uppercase;letter-spacing:.05em">Nome Abreviado</label>
+        <input id="prof-modal-abrev" type="text" placeholder="Ex: LUAN" style="width:100%;margin-top:.25rem;padding:.4rem .6rem;border:1.5px solid var(--g5);border-radius:7px;font-family:Sora,sans-serif;font-size:.82rem;text-transform:uppercase;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:.68rem;font-weight:700;color:var(--g2);text-transform:uppercase;letter-spacing:.05em">Nome Completo</label>
+        <input id="prof-modal-nome" type="text" placeholder="Ex: Luan Henrique Varão Silva" style="width:100%;margin-top:.25rem;padding:.4rem .6rem;border:1.5px solid var(--g5);border-radius:7px;font-family:Sora,sans-serif;font-size:.82rem;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:.68rem;font-weight:700;color:var(--g2);text-transform:uppercase;letter-spacing:.05em">Matrícula</label>
+        <input id="prof-modal-mat" type="text" placeholder="Ex: 1264288" style="width:100%;margin-top:.25rem;padding:.4rem .6rem;border:1.5px solid var(--g5);border-radius:7px;font-family:Sora,sans-serif;font-size:.82rem;font-family:'IBM Plex Mono',monospace;box-sizing:border-box">
+      </div>
+    </div>
+    <input type="hidden" id="prof-modal-idx" value="">
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.2rem">
+      <button onclick="closeProfModal()" style="background:var(--g6);border:1px solid var(--g5);border-radius:7px;padding:.45rem 1.1rem;font-size:.8rem;cursor:pointer">Cancelar</button>
+      <button onclick="saveProfModal()" style="background:var(--green);color:#fff;border:none;border-radius:7px;padding:.45rem 1.3rem;font-size:.8rem;font-weight:700;cursor:pointer">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+<!-- ── MODAL DIAGNÓSTICO IA ── -->
+<div id="diag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9500;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="background:#fff;border-radius:14px;width:min(720px,96vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden">
+    <!-- header -->
+    <div style="background:linear-gradient(135deg,#6B21A8,#4F46E5);padding:.9rem 1.3rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:.95rem;font-weight:800;color:#fff">🤖 Diagnóstico Inteligente da Turma</div>
+        <div id="diag-modal-subtitle" style="font-size:.68rem;color:rgba(255,255,255,.75);margin-top:.15rem"></div>
+      </div>
+      <button onclick="closeDiagModal()" style="background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;font-size:1rem;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <!-- status / progress -->
+    <div id="diag-status" style="padding:.55rem 1.3rem;background:#f8f6ff;border-bottom:1px solid #e9e4f8;flex-shrink:0;display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
+        <span id="diag-status-label" style="font-size:.72rem;color:#6B21A8;font-weight:600"></span>
+        <span id="diag-progress-pct" style="font-size:.72rem;color:#6B21A8;font-weight:800">0%</span>
+      </div>
+      <div style="background:#e9e4f8;border-radius:99px;height:7px;overflow:hidden">
+        <div id="diag-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#6B21A8,#4F46E5);border-radius:99px;transition:width .4s ease"></div>
+      </div>
+    </div>
+    <!-- saved banner -->
+    <div id="diag-saved-banner" style="display:none;padding:.55rem 1.3rem;background:#f0faf2;border-bottom:1px solid #c8e6c9;font-size:.72rem;color:#2e7d32;font-weight:600;flex-shrink:0;display:flex;align-items:center;gap:.6rem">
+      <span>✅ Diagnóstico salvo em <span id="diag-saved-date"></span></span>
+    </div>
+    <!-- result -->
+    <div id="diag-result" style="flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:.8rem;line-height:1.7;color:#1a1a1a"></div>
+    <!-- footer -->
+    <div style="padding:.7rem 1.3rem;border-top:1px solid var(--g5);display:flex;gap:.5rem;justify-content:flex-end;flex-shrink:0;background:#fafafa;flex-wrap:wrap">
+      <button id="diag-print-btn" onclick="printDiagResult()" style="display:none;background:#fff3e0;border:1px solid #ffcc80;border-radius:7px;padding:.38rem .8rem;font-size:.74rem;color:#e65100;font-weight:600;cursor:pointer">🖨️ Imprimir</button>
+      <button id="diag-copy-btn" onclick="copyDiagResult()" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:7px;padding:.38rem .8rem;font-size:.74rem;color:#2e7d32;font-weight:600;cursor:pointer">📋 Copiar</button>
+      <button id="diag-new-btn" onclick="runDiagnostico()" style="display:none;background:var(--g6);border:1px solid var(--g5);border-radius:7px;padding:.38rem .8rem;font-size:.74rem;font-weight:600;cursor:pointer">🔄 Gerar Novo</button>
+      <button id="diag-run-btn" onclick="runDiagnostico()" style="background:linear-gradient(135deg,#6B21A8,#4F46E5);color:#fff;border:none;border-radius:7px;padding:.38rem 1rem;font-size:.74rem;font-weight:700;cursor:pointer">▶ Gerar Diagnóstico</button>
+      <button onclick="closeDiagModal()" style="background:var(--g6);border:1px solid var(--g5);border-radius:7px;padding:.38rem .8rem;font-size:.74rem;cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
